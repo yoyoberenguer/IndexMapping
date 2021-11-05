@@ -67,8 +67,7 @@ pip install Mapping
 ## Methods
 ```` cython
 # MAP BUFFER INDEX VALUE INTO 3D INDEXING
-cpdef tuple to3d(unsigned int index, unsigned int width,
-                 unsigned short int depth):
+cpdef tuple to3d(unsigned int index, unsigned int width, unsigned short int depth):
    
     use_pygments=false
     """
@@ -88,9 +87,7 @@ cpdef tuple to3d(unsigned int index, unsigned int width,
 
 ``` cython
 # MAP 3D INDEX VALUE INTO BUFFER INDEXING
-cpdef unsigned int to1d(
-    unsigned int x, unsigned int y,
-    unsigned int z, unsigned int width, unsigned short int depth):
+cpdef unsigned int to1d(unsigned int x, unsigned int y, unsigned int z, unsigned int width, unsigned short int depth):
     
     use_pygments=false
     """
@@ -108,8 +105,7 @@ cpdef unsigned int to1d(
 ```
 ``` cython
 # VERTICALLY FLIP A SINGLE BUFFER VALUE
-cpdef vmap_buffer(unsigned int index, unsigned int width, 
-                  unsigned int height, unsigned short int depth):
+cpdef vmap_buffer(unsigned int index, unsigned int width, unsigned int height, unsigned short int depth):
                   
     use_pygments=false
     """
@@ -131,8 +127,7 @@ cpdef vmap_buffer(unsigned int index, unsigned int width,
 
 ``` cython
 # FLIP VERTICALLY A BUFFER (TYPE RGB)
-cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(
-        unsigned char [:] source, unsigned char [:] target,
+cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(unsigned char [:] source, unsigned char [:] target,
         unsigned int width, unsigned int height):
      
     use_pygments=false
@@ -153,8 +148,7 @@ cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(
 ```
 ``` cython
 # FLIP VERTICALLY A BUFFER (TYPE RGBA)
-cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(
-        unsigned char [:] source, unsigned char [:] target,
+cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(unsigned char [:] source, unsigned char [:] target,
         unsigned int width, unsigned int height):
         
     use_pygments=false
@@ -176,9 +170,7 @@ cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(
 
 ``` cython
 #  FLIP VERTICALLY A BUFFER (TYPE ALPHA, (WIDTH, HEIGHT))
-cpdef unsigned char [::1] vfb(
-    unsigned char [:] source,
-    unsigned char [::1] target, unsigned int width,
+cpdef unsigned char [::1] vfb(unsigned char [:] source, unsigned char [::1] target, unsigned int width,
     unsigned int height):
     
     use_pygments=false
