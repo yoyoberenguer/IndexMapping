@@ -1,19 +1,18 @@
 # IndexMapping 
 
-```
-
 This library contains tools that helps indexing arrays from 
 `1d array` (C buffer data type) to 3d array and reciprocally.
-The functions to1d and to3d are complementary and can be
-resume to :
-
+The functions `to1d` and `to3d` are complementary and can be
+resume to the following statment :
+```
 If we know the index value of a buffer (index), find the 
 equivalent position in a 3d array (x, y, z) such as :
+```
 
-* to3d (buffer[index]     --> 3d array[x, y, z])
-* to1d (3d array[x, y, z] --> buffer[index])
+- `to3d` buffer[index]     --> 3d array[x, y, z]
+- `to1d` 3d array[x, y, z] --> buffer[index]
 
-to1d & to3d can also be used to convert 1d array -> 3d array
+`to1d & to3d` can also be used to convert 1d array -> 3d array
 and vice versa. The library also includes functions to transpose
 C buffer data type like the numpy transpose function used for 
 multi-dimensional arrays.
@@ -25,9 +24,10 @@ a buffer is a contiguous or non-contiguous adjacent set of data?
 2) swap row and column of the equivalent 3d array (transposed) 
 3) Convert the 3d array back to 1d array type (flatten)
 
-This library provide functions such as vfb_rgb & vfb_rgba 
+This library provide functions such as` vfb_rgb` & `vfb_rgba` 
 (for transparency) to transpose the array directly.
 
+```
 Below a good example with 9 pixels buffer:
 // Original 9 pixels buffer (length = 27), pixel format RGB 
 (contiguous values)
@@ -49,13 +49,13 @@ original buffer
 3D model = [RGB1, RGB4, RGB7]
            [RGB2, RGB5, RGB8]
            [RGB3, RGB6, RGB9]
-
-After transposing the buffer we can observed that the 3d 
-equivalent model is an array with row & columns swapped. 
-This operation would be identical to a numpy transpose 
-function such as : 3darray.transpose(1, 0, 2)
-
 ```
+After transposing the buffer we can observed that the 3d 
+equivalent model is an array with `row & columns swapped`. 
+This operation would be identical to a numpy transpose 
+function such as : 3darray `transpose(1, 0, 2)`
+
+
 
 
 ## Installation 
@@ -64,10 +64,12 @@ pip install Mapping
 ```
 
 ## Methods
-```cython
+```` cython
 # MAP BUFFER INDEX VALUE INTO 3D INDEXING
 cpdef tuple to3d(unsigned int index, unsigned int width,
                  unsigned short int depth):
+   
+    use_pygments=false
     """
     Index mapping (buffer indexing --> 3d array)
     
@@ -76,14 +78,20 @@ cpdef tuple to3d(unsigned int index, unsigned int width,
     :param depth : python int; depth (RGB = 3) | (RGBA = 4) 
     :return      : Return a python tuple containing x, y, z index values 
     """
+    
     cdef xyz v;
     v = to3d_c(index, width, depth)
     return v.x, v.y, v.z
-    
+````
+
+
+``` cython
 # MAP 3D INDEX VALUE INTO BUFFER INDEXING
 cpdef unsigned int to1d(
     unsigned int x, unsigned int y,
     unsigned int z, unsigned int width, unsigned short int depth):
+    
+    use_pygments=false
     """
     Index mapping (3d array indexing --> buffer)
     
@@ -96,10 +104,13 @@ cpdef unsigned int to1d(
      corresponding to a 3d array with index position  (x, y, z) 
     """
     return to1d_c(x, y, z, width, depth)
-
+```
+``` cython
 # VERTICALLY FLIP A SINGLE BUFFER VALUE
 cpdef vmap_buffer(unsigned int index, unsigned int width, 
                   unsigned int height, unsigned short int depth):
+                  
+    use_pygments=false
     """
     Vertically flipped a single buffer value.
 
@@ -115,12 +126,15 @@ cpdef vmap_buffer(unsigned int index, unsigned int width,
      the buffer (traversed vertically). 
     """
     return vmap_buffer_c(index, width, height, depth)
+```
 
-
+``` cython
 # FLIP VERTICALLY A BUFFER (TYPE RGB)
 cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(
         unsigned char [:] source, unsigned char [:] target,
         unsigned int width, unsigned int height):
+     
+    use_pygments=false
     """
     Vertically flipped buffer containing any format of RGB colors
     
@@ -135,11 +149,14 @@ cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(
     
     """
     return numpy.asarray(vfb_rgb_c(source, target, width, height))
-
+```
+``` cython
 # FLIP VERTICALLY A BUFFER (TYPE RGBA)
 cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(
         unsigned char [:] source, unsigned char [:] target,
         unsigned int width, unsigned int height):
+        
+    use_pygments=false
     """
     Vertically flipped buffer containing any format of RGBA colors
         
@@ -154,12 +171,16 @@ cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(
     """
     return numpy.asarray(vfb_rgba_c(source, target, width, height))
 
+```
 
-# FLIP VERTICALLY A BUFFER (TYPE ALPHA, (WIDTH, HEIGHT))
+``` cython
+#  FLIP VERTICALLY A BUFFER (TYPE ALPHA, (WIDTH, HEIGHT))
 cpdef unsigned char [::1] vfb(
     unsigned char [:] source,
     unsigned char [::1] target, unsigned int width,
     unsigned int height):
+    
+    use_pygments=false
     """
     Flip vertically the content (e.g alpha values) of an 1d buffer
     structure. buffer representing an array type (w, h) 
@@ -172,8 +193,7 @@ cpdef unsigned char [::1] vfb(
     :return       : return 1d buffer (source array flipped)
     """
     return vfb_c(source, target, width, height)
-    
-```
+```   
 
 ``` python
 
@@ -195,7 +215,9 @@ for i in range(w):
         for k in range(3):
             index = to1d(i, j, k, w, 3)
             c_buffer[index] = rgb_array[i, j, k]       
+```
 
+```python
 
 from IndexMapping.mapping import to3d
 import pygame
