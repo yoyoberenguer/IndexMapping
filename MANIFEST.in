@@ -1,0 +1,20 @@
+include setup_mapping.py
+include mapcfunctions.pyx
+include mapping.pxd
+include mapping.pyx
+include LICENSE
+include README.md
+include requirements.txt
+graft test
+graft Assets
+include __init__.pxd
+include __init__.py
+pyproject.toml
+
+
+
+
+
+
+
+ 
