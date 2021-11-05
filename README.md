@@ -3,7 +3,7 @@
 This library contains tools that helps indexing arrays from 
 `1d array` (C buffer data type) to 3d array and reciprocally.
 The functions `to1d` and `to3d` are complementary and can be
-resume to the following statment :
+resume with the following statment :
 ```
 If we know the index value of a buffer (index), find the 
 equivalent position in a 3d array (x, y, z) such as :
