@@ -6,7 +6,8 @@ The functions `to1d` and `to3d` are complementary and can be
 resume with the following statment :
 ```
 If we know the index value of a buffer (index), find the 
-equivalent position in a 3d array (x, y, z) such as :
+equivalent position in a 3d array (x, y, z) and reciprocally; 
+such as :
 ```
 
 - `to3d` buffer[index]     --> 3d array[x, y, z]
