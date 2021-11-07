@@ -79,8 +79,7 @@ cpdef tuple to3d(unsigned int index, unsigned int width, unsigned short int dept
     :return      : Return a python tuple containing x, y, z index values 
     """
     
-    cdef xyz v;
-    v = to3d_c(index, width, depth)
+    cdef xyz v = to3d_c(index, width, depth)
     return v.x, v.y, v.z
 ````
 
@@ -128,7 +127,7 @@ cpdef vmap_buffer(unsigned int index, unsigned int width, unsigned int height, u
 ``` cython
 # FLIP VERTICALLY A BUFFER (TYPE RGB)
 cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(unsigned char [:] source, unsigned char [:] target,
-        unsigned int width, unsigned int height):
+        int width, int height):
      
     use_pygments=false
     """
@@ -149,7 +148,7 @@ cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(unsigned char [:] source, unsigned 
 ``` cython
 # FLIP VERTICALLY A BUFFER (TYPE RGBA)
 cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(unsigned char [:] source, unsigned char [:] target,
-        unsigned int width, unsigned int height):
+        int width, int height):
         
     use_pygments=false
     """
@@ -170,8 +169,8 @@ cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(unsigned char [:] source, unsigned
 
 ``` cython
 #  FLIP VERTICALLY A BUFFER (TYPE ALPHA, (WIDTH, HEIGHT))
-cpdef unsigned char [::1] vfb(unsigned char [:] source, unsigned char [::1] target, unsigned int width,
-    unsigned int height):
+cpdef unsigned char [::1] vfb(unsigned char [:] source, unsigned char [::1] target, int width,
+    int height):
     
     use_pygments=false
     """
@@ -189,15 +188,20 @@ cpdef unsigned char [::1] vfb(unsigned char [:] source, unsigned char [::1] targ
 ```   
 
 ``` python
-
 EXAMPLE :
 
+import IndexMapping
 from IndexMapping.mapping import to1d
 import pygame
+import numpy
+import os
+
+PROJECT_PATH = IndexMapping.__path__
+os.chdir(PROJECT_PATH[0] + "\\test")
 
 width, height = 800, 1024
 screen = pygame.display.set_mode((width, height))
-background = pygame.image.load('Assets/A1.png').convert()
+background = pygame.image.load('../Assets/A1.png').convert()
 w, h = background.get_size()
 rgb_array = pygame.surfarray.pixels3d(background)
 c_buffer = numpy.empty(w * h * 3, dtype=numpy.uint8)
@@ -212,14 +216,19 @@ for i in range(w):
 
 ```python
 
+import IndexMapping
 from IndexMapping.mapping import to3d
 import pygame
 from pygame.surfarray import pixels3d
 import numpy
+import os
+
+PROJECT_PATH = IndexMapping.__path__
+os.chdir(PROJECT_PATH[0] + "\\test")
 
 width, height = 800, 1024
 screen = pygame.display.set_mode((width, height))
-background = pygame.image.load('Assets/A1.png').convert()
+background = pygame.image.load('../Assets/A1.png').convert()
 w, h = background.get_size()
 
 rgb_array = pixels3d(background).transpose(1, 0, 2)
@@ -238,14 +247,19 @@ for i in range(length):
     rgb_array[x, y, z] = c_buffer[i]
 ```
 ```python
+import IndexMapping
 import numpy
 from IndexMapping.mapping import vfb_rgb
 import pygame
 from pygame.surfarray import pixels3d
+import os
+
+PROJECT_PATH = IndexMapping.__path__
+os.chdir(PROJECT_PATH[0] + "\\test")
 
 width, height = 800, 1024
 screen = pygame.display.set_mode((width, height))
-background = pygame.image.load('Assets/A1.png').convert()
+background = pygame.image.load('../Assets/A1.png').convert()
 background = pygame.transform.smoothscale(background, (640, 480))
 w, h = background.get_size()
 rgb_array = pixels3d(background)
@@ -319,20 +333,14 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ```
 
+
 ## Timing :
+```C:\>python profiling.py```
+
 ```
-Testing to1d        per call 2.627551e-07 
-overall time 0.2627551 for 1000000
-
-Testing to3d        per call 1.217256e-07 
-overall time 0.1217255 for 1000000
-
-Testing vfb_rgb     per call 0.0015129453 
-overall time 1.5129453 for 1000       --> image 800x800x3
-
-Testing vmap_buffer per call 1.189032e-07 
-overall time 0.1189032 for 1000000
-
-Testing vfb_rgba    per call 0.001878    
- overall time 1.8783595 for 1000       --> image 800x800x4
+Testing to1d        per call 2.627551e-07 overall time 0.2627551 for 1000000
+Testing to3d        per call 1.217256e-07 overall time 0.1217255 for 1000000
+Testing vfb_rgb     per call 0.0015129453 overall time 1.5129453 for 1000 --> image 800x800x3
+Testing vmap_buffer per call 1.189032e-07 overall time 0.1189032 for 1000000
+Testing vfb_rgba    per call 0.001878 overall time 1.8783595 for 1000     --> image 800x800x4
 ```
