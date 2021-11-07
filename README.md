@@ -296,6 +296,11 @@ make sure cython and a C-compiler are correctly install on your
   microsoft.com/python/unable-to-find-vcvarsall-bat/
 ```
 
+## Importing cython code in pyx file
+``` python
+from IndexMapping.mapping cimport xyz, to1d_c, to3d_c, vfb_rgb_c, vfb_c, vmap_buffer_c
+```
+
 ## Credit
 Yoann Berenguer 
 
