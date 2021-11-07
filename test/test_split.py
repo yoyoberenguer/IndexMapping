@@ -42,9 +42,14 @@ except ImportError:
     raise ImportError("\n<Pygame> library is missing on your system."
           "\nTry: \n   C:\\pip install pygame on a window command prompt.")
 
+import os
+import IndexMapping
 from IndexMapping.mapcfunctions import testing_pure_c, test_c_inplace, rgb_inplace
 
-if __name__ == '__main__':
+PROJECT_PATH = IndexMapping.__path__
+os.chdir(PROJECT_PATH[0] + "\\test")
+
+def run_test_split():
 
     w, h = 800, 1024
     screen = pygame.display.set_mode((w * 2, h))
@@ -72,4 +77,7 @@ if __name__ == '__main__':
         timer += 1
         pygame.display.flip()
         CLOCK.tick()
-        # print(CLOCK.get_fps())
+
+
+if __name__ == '__main__':
+    pass

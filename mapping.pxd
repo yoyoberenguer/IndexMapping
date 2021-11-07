@@ -1,6 +1,7 @@
 # cython: binding=False, boundscheck=False, wraparound=False, nonecheck=False, cdivision=True, optimize.use_switch=True
 # encoding: utf-8
 
+
 ## License :
 """
 ```
@@ -39,14 +40,15 @@ cdef xyz to3d_c(unsigned int index, unsigned int width, unsigned short int depth
 cdef unsigned int to1d_c(unsigned int x, unsigned int y,
                          unsigned int z, unsigned int width, unsigned short int depth)nogil
 
-cdef int vmap_buffer_c(unsigned int index, unsigned int width, unsigned int height, unsigned short int depth)nogil
+cdef unsigned int vmap_buffer_c(unsigned int index,
+                                unsigned int width, unsigned int height, unsigned short int depth)nogil
 
 cdef unsigned char [:] vfb_rgb_c(
-        unsigned char [:] source, unsigned char [:] target, unsigned int width, unsigned int height)nogil
+        unsigned char [:] source, unsigned char [:] target, int width, int height)nogil
 
 cdef unsigned char [:] vfb_rgba_c(
-        unsigned char [:] source, unsigned char [:] target, unsigned int width, unsigned int height)nogil
+        unsigned char [:] source, unsigned char [:] target, int width, int height)nogil
 
 cdef unsigned char [::1] vfb_c(unsigned char [:] source, unsigned char [::1] target,
-                               unsigned int width, unsigned int height)nogil
+                               int width, int height)nogil
 

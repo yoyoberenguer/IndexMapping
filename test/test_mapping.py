@@ -45,9 +45,12 @@ except ImportError:
     raise ImportError("\n<Pygame> library is missing on your system."
           "\nTry: \n   C:\\pip install pygame on a window command prompt.")
 
+import os
+import IndexMapping
+from IndexMapping.mapping import to1d, to3d, vfb_rgb, vfb_rgba, vfb, vmap_buffer
 
-from mapping import to1d, to3d, vfb_rgb, vfb_rgba, vfb, vmap_buffer
-
+PROJECT_PATH = IndexMapping.__path__
+os.chdir(PROJECT_PATH[0] + "\\test")
 
 class Test_to1d(unittest.TestCase):
 
@@ -263,10 +266,8 @@ class Test_vfb_rgb(unittest.TestCase):
         self.assertIsInstance(flipped_buffer, numpy.ndarray)
         self.assertTrue(flipped_buffer.dtype, numpy.uint8)
 
-        self.assertRaises(OverflowError, vfb_rgb, source_buffer, target_buffer, -32, 32)
-        self.assertRaises(OverflowError, vfb_rgb, source_buffer, target_buffer, 32, -32)
-        self.assertRaises(OverflowError, vfb_rgb, source_buffer, target_buffer, 4294967295 + 1, 4294967295)
-        self.assertRaises(OverflowError, vfb_rgb, source_buffer, target_buffer, 4294967295, 4294967295 + 1)
+        self.assertRaises(AssertionError, vfb_rgb, source_buffer, target_buffer, -32, 32)
+        self.assertRaises(AssertionError, vfb_rgb, source_buffer, target_buffer, 32, -32)
         self.assertRaises(TypeError, vfb_rgb, [r for r in range(100)], target_buffer, 4294967295, 4294967295)
         self.assertRaises(TypeError, vfb_rgb, source_buffer, [r for r in range(100)], 4294967295, 4294967295)
         self.assertRaises(ValueError, vfb_rgb, numpy.empty((10, 10), numpy.uint8), target_buffer, 4294967295, 4294967295)
@@ -409,10 +410,8 @@ class Test_vfb_rgba(unittest.TestCase):
         value = vfb_rgba(source_buffer, target_buffer, 3, 3)
         self.assertIsInstance(value, numpy.ndarray)
 
-        self.assertRaises(OverflowError, vfb_rgba, source_buffer, target_buffer, -32, 32)
-        self.assertRaises(OverflowError, vfb_rgba, source_buffer, target_buffer, 32, -32)
-        self.assertRaises(OverflowError, vfb_rgba, source_buffer, target_buffer, 4294967295 + 1, 4294967295)
-        self.assertRaises(OverflowError, vfb_rgba, source_buffer, target_buffer, 4294967295, 4294967295 + 1)
+        self.assertRaises(AssertionError, vfb_rgba, source_buffer, target_buffer, -32, 32)
+        self.assertRaises(AssertionError, vfb_rgba, source_buffer, target_buffer, 32, -32)
         self.assertRaises(TypeError, vfb_rgba, [r for r in range(100)], target_buffer, 4294967295, 4294967295)
         self.assertRaises(TypeError, vfb_rgba, source_buffer, [r for r in range(100)], 4294967295, 4294967295)
         self.assertRaises(ValueError, vfb_rgba, numpy.empty((10, 10), numpy.uint8), target_buffer, 4294967295,
@@ -488,9 +487,7 @@ class Test_display_vfb_rgba(unittest.TestCase):
                 break
 
 
-
-if __name__ == '__main__':
-
+def run_test():
     suite = unittest.TestSuite()
 
     suite.addTests([Test_to1d(),
@@ -504,152 +501,15 @@ if __name__ == '__main__':
                     Test_vfb_rgba(),
                     Test_display_vfb_rgba()
 
-    ])
+                    ])
 
     unittest.TextTestRunner().run(suite)
+    pygame.quit()
+
+
+if __name__ == '__main__':
+   pass
 
 
 
 
-    # # background_b = background_rgb # .transpose(1, 0, 2)
-    # # background_b = background_b.flatten()
-    # # im = testing_pure_c(background_b.astype(dtype=numpy.uint8), 400, 400)
-
-    # im = pygame.image.frombuffer(background_b, (w, h), 'RGB')
-    # screen.fill((0, 0, 0))
-    # screen.blit(im, (0, 0))
-    #
-    # new_buffer = numpy.asarray(background_b).reshape(h, w, 3).transpose(1, 0, 2)
-    # im = pygame.surfarray.make_surface(new_buffer)
-    # screen.blit(im, (w, 0))
-    # pygame.display.flip()
-    # print('\nTESTING TO1D')
-    # pygame.time.wait(1000)
-    #
-    # for r in range(w * h * 3):
-    #     v = to3d(r, w, 3)
-    #     x, y, z = v['x'], v['y'], v['z']
-    #     background_rgb[x][y][z] = background_b[r]
-    #
-    # im = pygame.surfarray.make_surface(background_rgb)
-    # screen.fill((0, 0, 0))
-    # screen.blit(im, (0, 0))
-    # pygame.display.flip()
-    # print('\nTESTING TO3D')
-    # pygame.time.wait(1000)
-    #
-    # # TESTING VFB_RGB (RGB ARRAY FLIP)
-    # # RELOADING RGB ARRAY
-    # background_rgb = pygame.surfarray.pixels3d(background)
-    # # FLAT THE ARRAY IN A BUFFER
-    # background_flat = background_rgb.flatten()
-    #
-    # background_c = numpy.empty(w * h * 3, dtype=numpy.uint8)
-    # # TRANSPOSE THE ARRAY
-    # flipped = vfb_rgb(background_flat, background_c, w, h)
-    # back = pygame.image.frombuffer(flipped, (w, h), 'RGB')
-    # back1 = pygame.surfarray.make_surface(numpy.asarray(flipped).reshape(h, w, 3))
-    # screen.fill((0, 0, 0))
-    # screen.blit(back, (0, 0))
-    # screen.blit(back1, (w, 0))
-    # pygame.display.flip()
-    # print('\nTESTING VFB_RGB')
-    # pygame.time.wait(2000)
-    #
-    # # TESTING vfb_rgba
-    # background = pygame.image.load('A1.png').convert_alpha()
-    # background = pygame.transform.smoothscale(background, (w, h))
-    # rgb_array = pygame.surfarray.pixels3d(background)
-    # alpha = pygame.surfarray.pixels_alpha(background)
-    # print(rgb_array.shape)
-    # print(alpha.shape)
-    # rgba_array = numpy.dstack((rgb_array, alpha)).astype(dtype=numpy.uint8)
-    # print(rgba_array.shape)
-    # print(rgba_array.flags)
-    # surface = pygame.image.frombuffer(
-    #     numpy.ascontiguousarray(rgba_array.transpose(1, 0, 2)), (w, h), 'RGBA')
-    # target = numpy.empty((w * h * 4), dtype=numpy.uint8)
-    # source = rgba_array.flatten()
-    # surface = pygame.image.frombuffer(vfb_rgba(source, target, w, h), (w, h), 'RGBA')
-    # i = 0
-    #
-    # # RETURN RGBA VALUES AND ARRAY SHAPE (WIDTH, HEIGHT)
-    # buffer_ = background.get_view('2')
-    # print(numpy.asarray(buffer_).shape, buffer_.length)
-    #
-    # # RETURN RGB VALUES AND ARRAY SHAPE (WIDTH, HEIGHT, 3)
-    # buffer_ = background.get_view('3')
-    # print(numpy.asarray(buffer_).shape, buffer_.length)
-    #
-    # buffer_ = background.get_view('2')
-    # new_buffer = numpy.frombuffer(buffer_, dtype=numpy.uint8)
-    # print(new_buffer.shape)
-    # flipped_image = pygame.image.frombuffer(new_buffer, (w, h), 'RGBA')
-    # # CREATE AND FLIP THE BUFFER
-    # flipped_buffer = flipped_image.get_view('2')
-    # flipped_buffer = numpy.frombuffer(flipped_buffer, numpy.uint8).reshape(w, h, 4)
-    # flipped_buffer = flipped_buffer.transpose(1, 0, 2).flatten()
-    # # LOAD THE ORIGINAL BUFFER AND FLIP IT TOO WITH vfb_rgba TO COMPARE BOTH BUFFER
-    # target = numpy.empty((w * h * 4), numpy.uint8)
-    # other_flipped_buffer = vfb_rgba(numpy.frombuffer(background.get_view('2'), numpy.uint8), target, w, h)
-    # print(len(flipped_buffer), other_flipped_buffer.shape)
-    # # COMPARE BOTH FLIPPED BUFFERS
-    # for r in range(len(flipped_buffer)):
-    #     if flipped_buffer[r] != other_flipped_buffer[r]:
-    #         print(flipped_buffer[r], other_flipped_buffer[r])
-    #         raise ValueError('\nArray are not identical')
-    #
-    # # TEST vfb_c
-    # alpha_image = pygame.image.load('Radial4.png').convert_alpha()
-    # alpha_image = pygame.transform.smoothscale(alpha_image, (w, h))
-    # alpha_buffer = alpha_image.get_view('a')
-    # print(alpha_buffer.length)
-    # target = numpy.empty((w * h), numpy.uint8)
-    # alpha_buffer = numpy.asarray(alpha_buffer)  # .transpose(1, 0)
-    # alpha_buffer = alpha_buffer.flatten()
-    # alpha_buffer_transposed = vfb(alpha_buffer, target, w, h)
-    # alpha_buffer_original_transposed = numpy.asarray(
-    #     alpha_image.get_view('a')).transpose(1, 0)
-    # alpha_buffer_original_transposed = alpha_buffer_original_transposed.flatten()
-    #
-    # for r in range(len(alpha_buffer_transposed)):
-    #     if alpha_buffer_transposed[r] != alpha_buffer_original_transposed[r]:
-    #         print(alpha_buffer_transposed[r], alpha_buffer_original_transposed[r])
-    #         raise ValueError('\nALPHA Array are not identical')
-    #
-    # N = w * h
-    # print("TO1D ", timeit.timeit("to1d(1, 1, 0, 400, 3)", "from __main__ import to1d", number=N))
-    # print("TO3D ", timeit.timeit("to3d(1, 400, 3)", "from __main__ import to3d", number=N))
-    # N = 1000
-    # print("VFB_RGB ", timeit.timeit("vfb_rgb(background_flat, background_c, 400, 400)",
-    #                                 "from __main__ import vfb_rgb, background_flat, background_c", number=N) / N)
-    # print("PURE C ", timeit.timeit("testing_pure_c(background_flat, 400, 400)",
-    #                                "from __main__ import testing_pure_c, background_flat", number=N) / N)
-    # target = numpy.empty((w * h * 4), numpy.uint8)
-    # print("VFB_RGBA C ", timeit.timeit("vfb_rgba(source, target, w, h)",
-    #                                    "from __main__ import vfb_rgba, source, target, w, h", number=N) / N)
-    # target = numpy.empty((w * h), numpy.uint8)
-    # print("VFB C ", timeit.timeit("vfb(alpha_buffer, target, w, h)",
-    #                               "from __main__ import vfb, alpha_buffer, target, w, h", number=N) / N)
-    #
-    # while 1:
-    #     pygame.event.pump()
-    #     keys = pygame.key.get_pressed()
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.MOUSEMOTION:
-    #             MOUSE_POS = event.pos
-    #
-    #     if keys[pygame.K_F8]:
-    #         pygame.image.save(screen, 'Screendump' + str(i) + '.png')
-    #
-    #     if keys[pygame.K_ESCAPE]:
-    #         break
-    #
-    #     screen.fill((0, 0, 0))
-    #
-    #     screen.blit(flipped_image, (0, 0))
-    #
-    #     pygame.display.flip()
-    #
-    #     i += 1
-    # pygame.quit()
