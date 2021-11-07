@@ -42,10 +42,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name                         ="IndexMapping",
-    version                      ="1.0.1",
+    version                      ="1.0.2",              # prod 1.0.2  / test 1.0.20 next 1.0.21
     author                       ="Yoann Berenguer",
     author_email                 ="yoyoberenguer@hotmail.com",
-    description                  ="1d array transpose/conversion",
+    description                  ="1D array transpose/conversion",
     long_description             =long_description,
     long_description_content_type="text/markdown",
     url                          ="https://github.com/yoyoberenguer/IndexMapping",
@@ -56,6 +56,7 @@ setuptools.setup(
         Extension("IndexMapping.mapcfunctions", ["mapcfunctions.pyx"],
                   extra_compile_args=["/Qpar", "/fp:fast", "/O2", "/Oy", "/Ot"], language="c")]),
     include_dirs=[numpy.get_include()],
+    define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
     license                      ='MIT',
 
     classifiers=[  # Optional
@@ -85,7 +86,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
-        # 'Programming Language :: Python :: 3 :: Only',
+        'Topic :: Software Development :: Libraries :: Python Modules'
     ],
 
     install_requires=[
@@ -105,11 +106,14 @@ setuptools.setup(
                   'mapping.pyx',
                   'LICENSE',
                   'README.md',
-                  'requirements.txt'
+                  'requirements.txt',
+                  'mapc.c',
+                  'setup.cfg'
 
                   ]),
                 ('./lib/site-packages/IndexMapping/test',
                  [
+                  'test/__init__.py',
                   'test/test_mapping.py',
                   'test/test_split.py',
                   'test/profiling.py'

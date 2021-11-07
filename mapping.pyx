@@ -1,6 +1,7 @@
 # cython: binding=False, boundscheck=False, wraparound=False, nonecheck=False, cdivision=True, optimize.use_switch=True
 # encoding: utf-8
 
+
 ## License :
 """
 ```
@@ -46,7 +47,35 @@ except ImportError:
 from libc.stdio cimport printf
 cimport numpy as np
 
-__version__ = "1.0.1"
+
+__version__ = "1.0.2"
+
+"""
+__version__ = 1.0.1 to 1.0.2 
++   Removed warning during compilation signed/unsigned mismatch warning (C4018 in Visual Studio).
+    Replacing int with some unsigned type is a problem because we frequently use OpenMP pragmas, 
+    and it requires the counter to be int.
++   Added define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")] to setup.py file and setup_mapping.py to 
+    get rid of this warning
++   corrected the variables x, y, z (now unsigned int) in mapping.pxd  
+    cdef struct xyz:
+        unsigned int x;
+        unsigned int y;
+        unsigned int z;
++   Changed vfb_c function call to inline, e.g
+    cdef inline unsigned char [::1] vfb_c(unsigned char [:] source,
+                unsigned char [::1] target, int width, int height)nogil:
++  Added 
+   assert width > 0, 'Argument width cannot be <=0'
+   assert height > 0, 'Argument height cannot be <=0'
+   in functions vfb_rgb & vfb_rgba
+   
++  Corrected the __init__.py and __init__.pxd 
++  Changed variable range for methods vfb_rgb, vfb_rgba, vfb (width and height) are now int instead 
+   of unsigned int. Changed the test_mapping.py to reflect those changes  
++  corrected profiling to be run from command line 
+
+"""
 
 
 # MAP BUFFER INDEX VALUE INTO 3D INDEXING
@@ -69,9 +98,9 @@ cpdef tuple to3d(unsigned int index, unsigned int width, unsigned short int dept
     :param depth: python int; depth (RGB = 3) | (RGBA = 4) value in range [0...65535]
     :return     : Return a python tuple containing x, y, z index values 
     """
-    cdef xyz v;
-    v = to3d_c(index, width, depth)
+    cdef xyz v = to3d_c(index, width, depth)
     return v.x, v.y, v.z
+
 
 # MAP 3D INDEX VALUE INTO BUFFER INDEXING
 cpdef unsigned int to1d(unsigned int x, unsigned int y,
@@ -141,7 +170,7 @@ cpdef vmap_buffer(unsigned int index, unsigned int width, unsigned int height, u
 # Todo this could be done inplace
 # FLIP VERTICALLY A BUFFER (TYPE RGB)
 cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(
-        unsigned char [:] source, unsigned char [:] target, unsigned int width, unsigned int height):
+        unsigned char [:] source, unsigned char [:] target, int width, int height):
     """
     Vertically flipped buffer containing any format of RGB colors
     
@@ -173,17 +202,19 @@ cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgb(
      The array length is known with (width * height * depth). The buffer represent 
      image 's pixels RGB.      
     :param target   : Target buffer must have same length than source buffer)
-    :param width    : integer; Source array's width (or width of the original image). Must be in range [0, 4294967295]
-    :param height   : integer; source array's height (or height of the original image). Must be in range [0, 4294967295]
+    :param width    : integer; Source array's width (or width of the original image). 
+    :param height   : integer; source array's height (or height of the original image). 
     :return         : Return a vertically flipped 1D RGB buffer (swapped rows and columns of the 2d model) 
     
     """
+    assert width  > 0, 'Argument width cannot be <=0'
+    assert height > 0, 'Argument height cannot be <=0'
     return numpy.asarray(vfb_rgb_c(source, target, width, height))
 
 # TODO this could be done inplace
 # FLIP VERTICALLY A BUFFER (TYPE RGBA)
 cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(
-        unsigned char [:] source, unsigned char [:] target, unsigned int width, unsigned int height):
+        unsigned char [:] source, unsigned char [:] target, int width, int height):
     """
     Vertically flipped buffer containing any format of RGBA colors
     
@@ -214,16 +245,18 @@ cpdef np.ndarray[np.uint8_t, ndim=1] vfb_rgba(
      The array length is known with (width * height * depth). The buffer represent 
      image 's pixels RGBA.     
     :param target   : Target buffer must have same length than source buffer)
-    :param width    : integer; Source array's width (or width of the original image). Must be in range [0, 4294967295]  
-    :param height   : integer; source array's height (or height of the original image). Must be in range [0, 4294967295]
+    :param width    : integer; Source array's width (or width of the original image). 
+    :param height   : integer; source array's height (or height of the original image). 
     :return         : Return a vertically flipped 1D RGBA buffer (swapped rows and columns of the 2d model) 
     """
+    assert width > 0, 'Argument width cannot be <=0'
+    assert height > 0, 'Argument height cannot be <=0'
     return numpy.asarray(vfb_rgba_c(source, target, width, height))
 
 # TODO this could be done inplace
 # FLIP VERTICALLY A BUFFER (TYPE ALPHA, (WIDTH, HEIGHT))
 cpdef unsigned char [::1] vfb(unsigned char [:] source,
-                              unsigned char [::1] target, unsigned int width, unsigned int height):
+                              unsigned char [::1] target, int width, int height):
     """
     Flip vertically the content (e.g alpha values) of an 1d buffer structure.
     buffer representing an array type (w, h) 
@@ -231,18 +264,13 @@ cpdef unsigned char [::1] vfb(unsigned char [:] source,
     :param source: 1d buffer created from array type(w, h) 
     :param target: 1d buffer numpy.empty(ax_ * ay_, dtype=numpy.uint8) that will be the equivalent 
     of the source array but flipped vertically 
-    :param width: source width. Must be in range [0, 4294967295] 
-    :param height: source height. Must be in range [0, 4294967295]
+    :param width: source width. 
+    :param height: source height. 
     :return: return 1d buffer (source array flipped)
     """
+    assert width > 0, 'Argument width cannot be <=0'
+    assert height > 0, 'Argument height cannot be <=0'
     return vfb_c(source, target, width, height)
-
-
-# C-structure to store 3d array index values
-cdef struct xyz:
-    unsigned int x;
-    unsigned int y;
-    unsigned int z;
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -260,11 +288,13 @@ cdef inline xyz to3d_c(unsigned int index, unsigned int width, unsigned short in
             printf("\nArgument depth cannot be null!")
             raise ValueError
 
-    cdef xyz v;
-    cdef int ix = index // depth
+    cdef:
+        xyz v
+        unsigned int ix = index // depth
+
     v.y = <int>(ix / width)
-    v.x = ix % width
-    v.z = index % depth
+    v.x = <int>(ix % width)
+    v.z = <int>(index % depth)
     return v
 
 @cython.boundscheck(False)
@@ -281,7 +311,7 @@ cdef inline unsigned int to1d_c(unsigned int x, unsigned int y,
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(False)
-cdef inline int vmap_buffer_c(unsigned int index,
+cdef inline unsigned int vmap_buffer_c(unsigned int index,
                               unsigned int width, unsigned int height, unsigned short int depth)nogil:
     if width == 0:
         with gil:
@@ -293,14 +323,14 @@ cdef inline int vmap_buffer_c(unsigned int index,
             printf("\nArgument depth cannot be null!")
             raise ValueError
     cdef:
-        int ix
-        int x, y, z
+        unsigned int ix
+        unsigned int x, y, z
 
     ix = index // depth
-    y = int(ix / width)
+    y = <unsigned int>(ix / width)
     x = ix % width
     z = index % depth
-    return (x * height * depth) + (depth * y) + z
+    return <unsigned int>(x * height * depth) + (depth * y) + z
 
 
 @cython.boundscheck(False)
@@ -308,7 +338,7 @@ cdef inline int vmap_buffer_c(unsigned int index,
 @cython.nonecheck(False)
 @cython.cdivision(True)
 cdef inline unsigned char [:] vfb_rgb_c(unsigned char [:] source, unsigned char [:] target,
-                                   unsigned int width, unsigned int height)nogil:
+                                   int width, int height)nogil:
     cdef:
         int i, j, k, index
         unsigned char [:] flipped_array = target
@@ -327,7 +357,7 @@ cdef inline unsigned char [:] vfb_rgb_c(unsigned char [:] source, unsigned char 
 @cython.nonecheck(False)
 @cython.cdivision(True)
 cdef inline unsigned char [:] vfb_rgba_c(unsigned char [:] source, unsigned char [:] target,
-                                   unsigned int width, unsigned int height)nogil:
+                                   int width, int height)nogil:
 
 
     cdef:
@@ -343,18 +373,19 @@ cdef inline unsigned char [:] vfb_rgba_c(unsigned char [:] source, unsigned char
 
     return flipped_array
 
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cdef unsigned char [::1] vfb_c(unsigned char [:] source,
-                               unsigned char [::1] target, unsigned int width, unsigned int height)nogil:
+cdef inline unsigned char [::1] vfb_c(unsigned char [:] source,
+                               unsigned char [::1] target, int width, int height)nogil:
     cdef:
         int i, j
         unsigned char [::1] flipped_array = target
 
-    for i in range(0, height, 1):
-        for j in range(0, width, 1):
+    for i in prange(0, height):
+        for j in range(0, width):
             flipped_array[j + (i * width)] =  <unsigned char>source[i + (height * j)]
     return flipped_array
 
